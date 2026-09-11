@@ -1,0 +1,9 @@
+repositories {
+    mavenCentral()
+    maven { url = "https://repo.grails.org/grails/core" }
+}
+def rootProps = new Properties()
+new File(projectDir.parentFile, 'gradle.properties').withInputStream { rootProps.load(it) }
+dependencies {
+    implementation "org.apache.grails:grails-gradle-plugins:${rootProps.grailsGradlePluginVersion}"
+}

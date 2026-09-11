@@ -1,0 +1,40 @@
+plugins {
+    id 'org.apache.grails.gradle.grails-web'
+}
+
+version "0.1"
+group "demo"
+
+sourceCompatibility = 21
+targetCompatibility = 21
+
+repositories {
+    mavenCentral()
+    maven { url "https://repo.grails.org/grails/core" }
+}
+
+dependencies {
+    // Grails 8: exactly one Grails BOM (the integration variant subsumes the base)
+    implementation platform("org.apache.grails:grails-hibernate5-bom:${grailsVersion}")
+    implementation "org.apache.grails:grails-data-hibernate5"
+    implementation "org.apache.grails:grails-logging"
+}
+
+// Fails when the @NotTransactional opt-out was ignored, i.e. when the compiled
+// class carries a $tt__optedOut(...) transactional wrapper.
+task checkWrappers(dependsOn: 'compileGroovy') {
+    doLast {
+        def javap = "${System.getProperty('java.home')}/bin/javap"
+        def cls = file('build/classes/groovy/main/demo/DemoService.class')
+        def out = new ByteArrayOutputStream()
+        exec { commandLine javap, '-p', cls.absolutePath; standardOutput = out }
+        def methods = out.toString()
+        def wrapped = methods.contains('$tt__wrapped')
+        def optedOut = methods.contains('$tt__optedOut')
+        println "wrapped()  has \$tt__ wrapper: ${wrapped} (expected: true)"
+        println "optedOut() has \$tt__ wrapper: ${optedOut} (expected: false — @NotTransactional)"
+        if (!wrapped) throw new GradleException("sanity check failed: wrapped() was not transformed at all")
+        if (optedOut) throw new GradleException("BUG REPRODUCED: @NotTransactional method 'optedOut' was given a transactional wrapper")
+        println "OK: @NotTransactional honoured"
+    }
+}

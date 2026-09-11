@@ -1,0 +1,8 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        maven { url "https://repo.grails.org/grails/core" }
+        gradlePluginPortal()
+    }
+}
+rootProject.name = 'grails8-nottransactional-repro'
