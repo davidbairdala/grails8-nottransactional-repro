@@ -14,7 +14,8 @@ repositories {
 }
 
 dependencies {
-    // Grails 8: exactly one Grails BOM (the integration variant subsumes the base)
+    // Grails 7: base BOM + hibernate5 BOM stack (the documented 7.x pattern)
+    implementation platform("org.apache.grails:grails-bom:${grailsVersion}")
     implementation platform("org.apache.grails:grails-hibernate5-bom:${grailsVersion}")
     implementation "org.apache.grails:grails-data-hibernate5"
     implementation "org.apache.grails:grails-logging"
